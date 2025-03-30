@@ -8,7 +8,6 @@ import java.util.Date;
 
 public class NTPClock {
     private static volatile long now = 0;
-    private static volatile long offset = 0;
     private static final JLabel timeLabel = new JLabel();
     private static final JLabel resultLabel = new JLabel("Press 'Sync' to synchronize");
 
@@ -81,7 +80,7 @@ public class NTPClock {
                     long delay = (t4 - t1) - (t3 - t2);
                     long newOffset = ((t2 - t1) + (t3 - t4)) / 2;
 
-                    offset = newOffset;
+                    now += newOffset;
                     resultLabel.setText(String.format(id + " Offset: %d ms, Delay: %d ms", newOffset, delay));
                 } catch (Exception ex) {
                     resultLabel.setText("Sync failed: " + ex.getMessage());
@@ -99,7 +98,7 @@ public class NTPClock {
         new Thread(() -> {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             while (true) {
-                long finalTime = now + offset;
+                long finalTime = now;
                 SwingUtilities.invokeLater(() -> timeLabel.setText(sdf.format(new Date(finalTime))));
                 try {
                     Thread.sleep(1000);
